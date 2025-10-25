@@ -1,19 +1,15 @@
 import React from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, Button } from 'react-native';
+import { useAuth } from '../context/AuthContext';
 
-export default function LoginScreen() {
+export default function LoginScreen({ navigation }) {
+  const { login } = useAuth();
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
-      <TextInput placeholder="Email" style={styles.input} />
-      <TextInput placeholder="Senha" secureTextEntry style={styles.input} />
-      <Button title="Entrar" onPress={() => {}} />
+    <View>
+      <Text>Login</Text>
+      <Button title="Entrar" onPress={login} />
+      <Button title="Registrar" onPress={() => navigation.navigate('Register')} />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 20 },
-  title: { fontSize: 24, marginBottom: 20 },
-  input: { borderWidth: 1, padding: 10, marginBottom: 10, borderRadius: 5 },
-});
