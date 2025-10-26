@@ -4,12 +4,11 @@ import { View, Text, FlatList, ActivityIndicator, StyleSheet } from 'react-nativ
 import { fetchTasks } from '../services/task';
 import TaskItem from '../components/TaskItem';
 
+
 interface Task {
   id: number;
   title: string;
   completed: boolean;
-  description?: string;
-  created_at?: string;
 }
 
 export default function TaskScreen() {
@@ -17,14 +16,18 @@ export default function TaskScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  <FlatList
+  data={tasks}
+  keyExtractor={(item) => item.id.toString()}
+  renderItem={({ item }) => <TaskItem task={item} />}
+  />
+  
   useEffect(() => {
     const loadTasks = async () => {
       try {
         const data = await fetchTasks();
-        console.log('Tarefas recebidas:', data); // 👈 Verifique no console
-        setTasks(data); // ou setTasks(data.results) se for paginado
+        setTasks(data);
       } catch (err) {
-        console.error('Erro ao buscar tarefas:', err);
         setError('Erro ao carregar tarefas');
       } finally {
         setLoading(false);
@@ -42,7 +45,12 @@ export default function TaskScreen() {
       <FlatList
         data={tasks}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <TaskItem task={item} />}
+        renderItem={({ item }) => (
+          <View style={styles.taskItem}>
+            <Text style={styles.taskText}>{item.title}</Text>
+            <Text>{item.completed ? '✅' : '⬜'}</Text>
+          </View>
+        )}
       />
     </View>
   );
@@ -52,4 +60,12 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
   loader: { flex: 1, justifyContent: 'center' },
   error: { color: 'red', textAlign: 'center', marginTop: 20 },
+  taskItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 12,
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+  },
+  taskText: { fontSize: 16 },
 });
