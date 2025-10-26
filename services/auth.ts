@@ -29,3 +29,12 @@ export async function requestPasswordReset(email: string) {
   const response = await publicApi.post('/accounts/password-reset/request/', { email });
   return response.data;
 }
+
+export async function confirmPasswordReset(uid: string, token: string, newPassword: string) {
+  const response = await publicApi.post('/accounts/password-reset/confirm/', {
+    uid,
+    token,
+    new_password: newPassword
+  });
+  return response.data;
+}
