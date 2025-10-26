@@ -25,6 +25,7 @@ export default function LoginScreen({ navigation }) {
       <TextInput value={password} onChangeText={setPassword} secureTextEntry style={{ borderWidth: 1, marginBottom: 10 }} />
       <Button title="Entrar" onPress={handleLogin} />
       <Button title="Registrar" onPress={() => navigation.navigate('Register')} />
+      <Button title="Esqueci minha senha" onPress={() => navigation.navigate('PasswordReset')} />
     </View>
   );
 }
