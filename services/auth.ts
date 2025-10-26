@@ -24,3 +24,8 @@ export async function registerUser(username: string, email: string, password: st
   });
   return response.data;
 }
+
+export async function requestPasswordReset(email: string) {
+  const response = await publicApi.post('/accounts/password-reset/request/', { email });
+  return response.data;
+}
