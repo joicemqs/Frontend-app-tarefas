@@ -1,14 +1,14 @@
 // screens/TaskScreen.tsx
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, ActivityIndicator, StyleSheet } from 'react-native';
-import { fetchTasks } from '../services/task';
+import { fetchTasks, toggleTaskStatus  } from '../services/task';
 import TaskItem from '../components/TaskItem';
 
 
 interface Task {
   id: number;
   title: string;
-  completed: boolean;
+  is_completed: boolean;
 }
 
 export default function TaskScreen() {
@@ -16,10 +16,27 @@ export default function TaskScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const handleToggle = async (taskId: number, is_completed: boolean) => {
+  try {
+    const updatedTask = await toggleTaskStatus(taskId, is_completed);
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === taskId ? { ...task, is_completed: updatedTask.is_completed } : task
+      )
+    );
+  } catch (err) {
+    console.error('Erro ao atualizar tarefa:', err);
+    setError('Erro ao atualizar tarefa');
+  }
+};
+
+
   <FlatList
   data={tasks}
   keyExtractor={(item) => item.id.toString()}
-  renderItem={({ item }) => <TaskItem task={item} />}
+  renderItem={({ item }) => (
+  <TaskItem task={item} onToggle={handleToggle} />
+)}
   />
   
   useEffect(() => {
@@ -41,18 +58,15 @@ export default function TaskScreen() {
   if (error) return <Text style={styles.error}>{error}</Text>;
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={tasks}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.taskItem}>
-            <Text style={styles.taskText}>{item.title}</Text>
-            <Text>{item.completed ? '✅' : '⬜'}</Text>
-          </View>
-        )}
-      />
-    </View>
+  <View style={styles.container}>
+    <FlatList
+  data={tasks}
+  keyExtractor={(item) => item.id.toString()}
+  renderItem={({ item }) => (
+    <TaskItem task={item} onToggle={handleToggle} />
+  )}
+/>
+  </View>
   );
 }
 
