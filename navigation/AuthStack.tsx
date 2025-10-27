@@ -11,8 +11,28 @@ const Stack = createNativeStackNavigator();
 export default function AuthStack() {
   return (
     <Stack.Navigator initialRouteName="Login" id={undefined}>
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Register" component={RegisterScreen} />
+      <Stack.Screen name="Login" component={LoginScreen} options={{
+          title: 'Login',
+          headerStyle: {
+            backgroundColor: '#9A8C98',
+          },
+          headerTintColor: '#22223B',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          }
+        }}/>
+
+      <Stack.Screen name="Register" component={RegisterScreen} options={{
+          title: 'Registrar',
+          headerStyle: {
+            backgroundColor: '#9A8C98',
+          },
+          headerTintColor: '#22223B',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          }
+        }}/>
+
       <Stack.Screen name="PasswordReset" component={PasswordResetScreen} options={{ title: 'Recuperar Senha' }} />
       <Stack.Screen name="PasswordResetConfirm" component={PasswordResetConfirmScreen} 
       options={{ title: 'Redefinir Senha' }}/>
