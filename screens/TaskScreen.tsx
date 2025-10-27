@@ -1,7 +1,7 @@
 // screens/TaskScreen.tsx
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, ActivityIndicator, StyleSheet, TextInput, Button } from 'react-native';
-import { fetchTasks, toggleTaskStatus, createTask } from '../services/task';
+import { fetchTasks, toggleTaskStatus, createTask, updateTask } from '../services/task';
 import TaskItem from '../components/TaskItem';
 
 
@@ -47,6 +47,21 @@ export default function TaskScreen() {
     }
   };
 
+  const handleEdit = async (taskId: number, newTitle: string, newDescription: string) => {
+  try {
+    const updated = await updateTask(taskId, newTitle, newDescription);
+    setTasks((prev) =>
+      prev.map((task) =>
+        task.id === taskId ? { ...task, title: updated.title, description: updated.description } : task
+      )
+    );
+  } catch (err) {
+    console.error('Erro ao editar tarefa:', err);
+    setError('Erro ao editar tarefa');
+  }
+};
+
+
   useEffect(() => {
     const loadTasks = async () => {
       try {
@@ -88,7 +103,7 @@ export default function TaskScreen() {
         data={tasks}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <TaskItem task={item} onToggle={handleToggle} />
+          <TaskItem task={item} onToggle={handleToggle} onEdit={handleEdit} />
         )}
       />
     </View>
