@@ -3,12 +3,14 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, ActivityIndicator, StyleSheet, TextInput, Button, Alert } from 'react-native';
 import { fetchTasks, toggleTaskStatus, createTask, updateTask, deleteTask } from '../services/task';
 import TaskItem from '../components/TaskItem';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 
 interface Task {
   id: number;
   title: string;
   is_completed: boolean;
+  created_at: string;
 }
 
 export default function TaskScreen() {
@@ -18,7 +20,8 @@ export default function TaskScreen() {
   const [newTitle, setNewTitle] = useState('');
   const [newDescription, setNewDescription] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'completed' | 'pending'>('all');
-
+  const [filterDate, setFilterDate] = useState<Date | null>(null);
+  const [showPicker, setShowPicker] = useState(false);
 
   const handleToggle = async (taskId: number, is_completed: boolean) => {
     try {
@@ -87,9 +90,15 @@ export default function TaskScreen() {
   };
 
   const filteredTasks = tasks.filter((task) => {
-    if (filterStatus === 'completed') return task.is_completed;
-    if (filterStatus === 'pending') return !task.is_completed;
-    return true; // 'all'
+    const matchStatus =
+      filterStatus === 'all' ||
+      (filterStatus === 'completed' && task.is_completed) ||
+      (filterStatus === 'pending' && !task.is_completed);
+
+    const matchDate =
+      !filterDate || new Date(task.created_at) >= filterDate;
+
+    return matchStatus && matchDate;
   });
 
 
@@ -129,6 +138,25 @@ export default function TaskScreen() {
           onChangeText={setNewDescription}
         />
         <Button title="Adicionar" onPress={handleAddTask} />
+      </View>
+
+      <View style={styles.dateFilter}>
+        <Text style={styles.label}>Filtrar por data:</Text>
+        <Button
+          title={filterDate ? filterDate.toLocaleDateString() : 'Escolher data'}
+          onPress={() => setShowPicker(true)}
+        />
+        {showPicker && (
+          <DateTimePicker
+            value={filterDate || new Date()}
+            mode="date"
+            display="default"
+            onChange={(event, selectedDate) => {
+              setShowPicker(false);
+              if (selectedDate) setFilterDate(selectedDate);
+            }}
+          />
+        )}
       </View>
 
       <View style={styles.filterRow}>
@@ -178,6 +206,9 @@ const styles = StyleSheet.create({
   filterRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
+    marginBottom: 16,
+  },
+  dateFilter: {
     marginBottom: 16,
   },
 });
