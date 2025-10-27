@@ -17,6 +17,7 @@ export default function TaskScreen() {
   const [error, setError] = useState('');
   const [newTitle, setNewTitle] = useState('');
   const [newDescription, setNewDescription] = useState('');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'completed' | 'pending'>('all');
 
 
   const handleToggle = async (taskId: number, is_completed: boolean) => {
@@ -85,6 +86,12 @@ export default function TaskScreen() {
     );
   };
 
+  const filteredTasks = tasks.filter((task) => {
+    if (filterStatus === 'completed') return task.is_completed;
+    if (filterStatus === 'pending') return !task.is_completed;
+    return true; // 'all'
+  });
+
 
 
   useEffect(() => {
@@ -124,11 +131,17 @@ export default function TaskScreen() {
         <Button title="Adicionar" onPress={handleAddTask} />
       </View>
 
+      <View style={styles.filterRow}>
+        <Button title="Todas" onPress={() => setFilterStatus('all')} />
+        <Button title="Pendentes" onPress={() => setFilterStatus('pending')} />
+        <Button title="Concluídas" onPress={() => setFilterStatus('completed')} />
+      </View>
+
       <FlatList
-        data={tasks}
+        data={filteredTasks}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <TaskItem task={item} onToggle={handleToggle} onEdit={handleEdit} onDelete={handleDelete}/>
+          <TaskItem task={item} onToggle={handleToggle} onEdit={handleEdit} onDelete={handleDelete} />
         )}
       />
     </View>
@@ -162,5 +175,9 @@ const styles = StyleSheet.create({
     padding: 8,
     marginBottom: 8,
   },
-
+  filterRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 16,
+  },
 });
