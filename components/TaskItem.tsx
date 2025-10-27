@@ -12,9 +12,10 @@ interface Props {
   task: Task;
   onToggle: (taskId: number, is_completed: boolean) => void;
   onEdit: (taskId: number, newTitle: string, newDescription: string) => void;
+  onDelete: (taskId: number) => void;
 }
 
-export default function TaskItem({ task, onToggle, onEdit }: Props) {
+export default function TaskItem({ task, onToggle, onEdit, onDelete}: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(task.title);
   const [editedDescription, setEditedDescription] = useState(task.description ?? '');
@@ -77,6 +78,12 @@ export default function TaskItem({ task, onToggle, onEdit }: Props) {
             <TouchableOpacity onPress={() => setIsEditing(true)} style={styles.editButton}>
               <Text style={styles.editText}>✏️</Text>
             </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => onDelete(task.id)}
+              style={styles.deleteButton}
+            >
+              <Text style={styles.deleteText}>🗑️</Text>
+            </TouchableOpacity>
           </View>
         </>
       )}
@@ -112,4 +119,11 @@ const styles = StyleSheet.create({
   icon: { fontSize: 20 },
   editButton: { padding: 8 },
   editText: { fontSize: 18 },
+  deleteButton: {
+    padding: 8,
+  },
+  deleteText: {
+    fontSize: 18,
+    color: '#c00',
+  },
 });
