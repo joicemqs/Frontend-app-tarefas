@@ -20,3 +20,12 @@ export const createTask = async (title: string, description: string) => {
   });
   return response.data;
 };
+
+export const updateTask = async (taskId: number, title: string, description: string) => {
+  const response = await api.patch(`/tasks/tasks/${taskId}/`, {
+    title,
+    description,
+  });
+  return response.data;
+};
+
