@@ -33,7 +33,16 @@ export default function AuthStack() {
           }
         }}/>
 
-      <Stack.Screen name="PasswordReset" component={PasswordResetScreen} options={{ title: 'Recuperar Senha' }} />
+      <Stack.Screen name="PasswordReset" component={PasswordResetScreen} options={{
+          title: 'Recuperar Senha',
+          headerStyle: {
+            backgroundColor: '#9A8C98',
+          },
+          headerTintColor: '#22223B',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          }
+        }} />
       <Stack.Screen name="PasswordResetConfirm" component={PasswordResetConfirmScreen} 
       options={{ title: 'Redefinir Senha' }}/>
     </Stack.Navigator>
