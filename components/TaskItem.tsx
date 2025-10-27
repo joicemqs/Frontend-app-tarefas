@@ -6,6 +6,7 @@ interface Task {
   title: string;
   description?: string;
   is_completed?: boolean;
+  created_at: string;
 }
 
 interface Props {
