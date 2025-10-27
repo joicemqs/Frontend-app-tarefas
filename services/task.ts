@@ -11,3 +11,12 @@ export const toggleTaskStatus = async (taskId: number, is_completed: boolean) =>
   });
   return response.data;
 };
+
+export const createTask = async (title: string, description: string) => {
+  const response = await api.post('/tasks/tasks/', {
+    title,
+    description,
+    is_completed: false,
+  });
+  return response.data;
+};
