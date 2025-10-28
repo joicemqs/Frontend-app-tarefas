@@ -145,6 +145,16 @@ export default function TaskScreen() {
           />
         )}
 
+        {filterDate && (
+          <TouchableOpacity
+            style={styles.dateButton}
+            onPress={() => setFilterDate(null)}
+          >
+            <Text style={styles.dateButtonText}>✖</Text>
+          </TouchableOpacity>
+        )}
+
+
       </View>
 
       <View style={styles.filterRow}>
@@ -191,13 +201,13 @@ export default function TaskScreen() {
               onChangeText={setNewDescription}
             />
             <View style={styles.modalButtons}>
-              <TouchableOpacity style={styles.button2}onPress={() => {
-                  handleAddTask();
-                  setModalVisible(false);
-                }}>
+              <TouchableOpacity style={styles.button2} onPress={() => {
+                handleAddTask();
+                setModalVisible(false);
+              }}>
                 <Text style={styles.text2}>Salvar</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.button2}onPress={() => setModalVisible(false)}>
+              <TouchableOpacity style={styles.button2} onPress={() => setModalVisible(false)}>
                 <Text style={styles.text2}>Cancelar</Text>
               </TouchableOpacity>
             </View>
@@ -226,8 +236,9 @@ export default function TaskScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, 
-    padding: 12, 
+  container: {
+    flex: 1,
+    padding: 12,
     position: 'relative',
     backgroundColor: '#F2E9E4',
 
@@ -259,6 +270,8 @@ const styles = StyleSheet.create({
   },
   dateFilter: {
     marginBottom: 10,
+    flexDirection: 'row',
+    gap: 10,
   },
   modalOverlay: {
     flex: 1,
@@ -314,6 +327,7 @@ const styles = StyleSheet.create({
   dateButtonText: {
     color: '#fff',
     fontSize: 16,
+    textAlign: 'center',
   },
   filterButton: {
     paddingVertical: 8,
@@ -339,7 +353,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  button2:{
+  button2: {
     height: 45,
     borderRadius: 15,
     backgroundColor: '#22223B',
