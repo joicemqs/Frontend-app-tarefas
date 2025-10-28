@@ -90,6 +90,14 @@ export default function TaskScreen() {
     );
   };
 
+  function isSameDay(date1: Date, date2: Date): boolean {
+    return (
+      date1.getDate() === date2.getDate() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getFullYear() === date2.getFullYear()
+    );
+  }
+
   const filteredTasks = tasks.filter((task) => {
     const matchStatus =
       filterStatus === 'all' ||
@@ -97,7 +105,8 @@ export default function TaskScreen() {
       (filterStatus === 'pending' && !task.is_completed);
 
     const matchDate =
-      !filterDate || new Date(task.created_at) >= filterDate;
+      !filterDate ||
+      isSameDay(new Date(task.created_at), filterDate);
 
     return matchStatus && matchDate;
   });
