@@ -16,7 +16,7 @@ interface Props {
   onDelete: (taskId: number) => void;
 }
 
-export default function TaskItem({ task, onToggle, onEdit, onDelete}: Props) {
+export default function TaskItem({ task, onToggle, onEdit, onDelete }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(task.title);
   const [editedDescription, setEditedDescription] = useState(task.description ?? '');
@@ -28,39 +28,46 @@ export default function TaskItem({ task, onToggle, onEdit, onDelete}: Props) {
       {isEditing ? (
         <View style={{ flex: 1 }}>
           <TextInput
-            style={styles.input}
+            style={styles.TextInput}
             value={editedTitle}
             onChangeText={setEditedTitle}
             placeholder="Título"
           />
           <TextInput
-            style={styles.input}
+            style={styles.TextInput}
             value={editedDescription}
             onChangeText={setEditedDescription}
             placeholder="Descrição"
           />
           <View style={styles.row}>
-            <Button
-              title="Salvar"
-              onPress={() => {
+            <TouchableOpacity style={styles.button2} onPress={() => {
                 onEdit(task.id, editedTitle, editedDescription);
                 setIsEditing(false);
-              }}
-            />
+              }}>
+              <Text style={styles.text2}>Salvar</Text>
+            </TouchableOpacity>
+
             <View style={{ width: 8 }} />
-            <Button
-              title="Cancelar"
-              color="#888"
-              onPress={() => {
+            <TouchableOpacity style={styles.button2} onPress={() => {
                 setEditedTitle(task.title);
                 setEditedDescription(task.description ?? '');
                 setIsEditing(false);
-              }}
-            />
+              }}>
+              <Text style={styles.text2}>Cancelar</Text>
+            </TouchableOpacity>
           </View>
         </View>
       ) : (
         <>
+
+          <View>
+            <TouchableOpacity
+              onPress={() => onToggle(task.id, task.is_completed ?? false)}
+              style={styles.toggleButton}
+            >
+              <Text style={styles.icon}>{task.is_completed ? '✔' : '    '}</Text>
+            </TouchableOpacity>
+          </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.title}>{task.title}</Text>
             {task.description ? (
@@ -69,21 +76,17 @@ export default function TaskItem({ task, onToggle, onEdit, onDelete}: Props) {
           </View>
 
           <View style={styles.actions}>
-            <TouchableOpacity
-              onPress={() => onToggle(task.id, task.is_completed ?? false)}
-              style={styles.toggleButton}
-            >
-              <Text style={styles.icon}>{task.is_completed ? '✅' : '⬜'}</Text>
-            </TouchableOpacity>
 
             <TouchableOpacity onPress={() => setIsEditing(true)} style={styles.editButton}>
-              <Text style={styles.editText}>✏️</Text>
+              <Text style={styles.editText}>✒</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => onDelete(task.id)}
               style={styles.deleteButton}
             >
-              <Text style={styles.deleteText}>🗑️</Text>
+              <Text style={styles.deleteText}>
+                ✖
+              </Text>
             </TouchableOpacity>
           </View>
         </>
@@ -98,9 +101,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 12,
     borderBottomWidth: 1,
-    borderColor: '#ddd',
+    borderColor: '#4A4E69',
+    backgroundColor: '#9a8c9856',
+    marginBottom: 5,
+    borderRadius: 10,
   },
-  title: { fontSize: 16, fontWeight: '600' },
+  title: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#22223B'
+  },
   description: { fontSize: 14, color: '#666', marginTop: 4 },
   input: {
     borderWidth: 1,
@@ -117,14 +127,49 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginRight: 8,
   },
-  icon: { fontSize: 20 },
-  editButton: { padding: 8 },
-  editText: { fontSize: 18 },
+  icon: {
+    fontSize: 20,
+    color: '#22223B',
+    height: 27,
+    width: 27,
+    textAlign: 'center',
+  },
+  editButton: {
+    padding: 8
+  },
+  editText: {
+    fontSize: 18,
+    height: 30,
+    width: 30,
+    textAlign: 'center',
+    color: '#4A4E69',
+  },
   deleteButton: {
     padding: 8,
   },
   deleteText: {
     fontSize: 18,
-    color: '#c00',
+    color: '4A4E69',
+  },
+  button2:{
+    height: 45,
+    borderRadius: 15,
+    backgroundColor: '#22223B',
+    justifyContent: 'center',
+    marginBottom: 10,
+    marginTop: 10,
+    paddingHorizontal: 12,
+  },
+  text2: {
+    textAlign: 'center',
+    color: '#ffffffff',
+  },
+  TextInput: {
+    borderWidth: 1,
+    marginBottom: 10,
+    padding: 8,
+    borderRadius: 15,
+    height: 45,
+    borderColor: '#9A8C98'
   },
 });

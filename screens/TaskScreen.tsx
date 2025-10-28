@@ -1,6 +1,6 @@
 // screens/TaskScreen.tsx
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, StyleSheet, TextInput, Button, Alert } from 'react-native';
+import { Modal, View, Text, FlatList, ActivityIndicator, StyleSheet, TextInput, Button, Alert, TouchableOpacity } from 'react-native';
 import { fetchTasks, toggleTaskStatus, createTask, updateTask, deleteTask } from '../services/task';
 import TaskItem from '../components/TaskItem';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -22,6 +22,7 @@ export default function TaskScreen() {
   const [filterStatus, setFilterStatus] = useState<'all' | 'completed' | 'pending'>('all');
   const [filterDate, setFilterDate] = useState<Date | null>(null);
   const [showPicker, setShowPicker] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const handleToggle = async (taskId: number, is_completed: boolean) => {
     try {
@@ -101,8 +102,6 @@ export default function TaskScreen() {
     return matchStatus && matchDate;
   });
 
-
-
   useEffect(() => {
     const loadTasks = async () => {
       try {
@@ -123,29 +122,17 @@ export default function TaskScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.form}>
-        <Text style={styles.label}>Nova tarefa:</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Título"
-          value={newTitle}
-          onChangeText={setNewTitle}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Descrição"
-          value={newDescription}
-          onChangeText={setNewDescription}
-        />
-        <Button title="Adicionar" onPress={handleAddTask} />
-      </View>
 
       <View style={styles.dateFilter}>
-        <Text style={styles.label}>Filtrar por data:</Text>
-        <Button
-          title={filterDate ? filterDate.toLocaleDateString() : 'Escolher data'}
+        <TouchableOpacity
+          style={styles.dateButton}
           onPress={() => setShowPicker(true)}
-        />
+        >
+          <Text style={styles.dateButtonText}>
+            {filterDate ? filterDate.toLocaleDateString() : 'Filtrar por data'}
+          </Text>
+        </TouchableOpacity>
+
         {showPicker && (
           <DateTimePicker
             value={filterDate || new Date()}
@@ -157,13 +144,70 @@ export default function TaskScreen() {
             }}
           />
         )}
+
       </View>
 
       <View style={styles.filterRow}>
-        <Button title="Todas" onPress={() => setFilterStatus('all')} />
-        <Button title="Pendentes" onPress={() => setFilterStatus('pending')} />
-        <Button title="Concluídas" onPress={() => setFilterStatus('completed')} />
+        {['all', 'pending', 'completed'].map((status) => (
+          <TouchableOpacity
+            key={status}
+            style={[
+              styles.filterButton,
+              filterStatus === status && styles.filterButtonActive,
+            ]}
+            onPress={() => setFilterStatus(status as 'all' | 'pending' | 'completed')}
+          >
+            <Text
+              style={[
+                styles.filterButtonText,
+                filterStatus === status && styles.filterButtonTextActive,
+              ]}
+            >
+              {status === 'all' ? 'Todas' : status === 'pending' ? 'Pendentes' : 'Concluídas'}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Criar nova tarefa</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Título"
+              value={newTitle}
+              onChangeText={setNewTitle}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Descrição"
+              value={newDescription}
+              onChangeText={setNewDescription}
+            />
+            <View style={styles.modalButtons}>
+              <Button
+                title="Salvar"
+                onPress={() => {
+                  handleAddTask();
+                  setModalVisible(false);
+                }}
+              />
+              <Button
+                title="Cancelar"
+                color="#888"
+                onPress={() => setModalVisible(false)}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
 
       <FlatList
         data={filteredTasks}
@@ -172,13 +216,25 @@ export default function TaskScreen() {
           <TaskItem task={item} onToggle={handleToggle} onEdit={handleEdit} onDelete={handleDelete} />
         )}
       />
+
+      <TouchableOpacity
+        style={styles.floatingButton}
+        onPress={() => setModalVisible(true)}
+      >
+        <Text style={styles.floatingButtonText}>+</Text>
+      </TouchableOpacity>
     </View>
   );
 
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
+  container: { flex: 1, 
+    padding: 12, 
+    position: 'relative',
+    backgroundColor: '#F2E9E4',
+
+  },
   loader: { flex: 1, justifyContent: 'center' },
   error: { color: 'red', textAlign: 'center', marginTop: 20 },
   taskItem: {
@@ -187,10 +243,6 @@ const styles = StyleSheet.create({
     padding: 12,
     borderBottomWidth: 1,
     borderColor: '#ccc',
-  },
-  taskText: { fontSize: 16 },
-  form: {
-    marginBottom: 16,
   },
   label: {
     fontSize: 16,
@@ -209,6 +261,86 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   dateFilter: {
-    marginBottom: 16,
+    marginBottom: 10,
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 12,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 16,
+  },
+  floatingButton: {
+    position: 'absolute',
+    bottom: 30,
+    right: 30,
+    backgroundColor: '#4A4E69', // azul iOS, pode trocar
+    width: 60,
+    height: 60,
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5, // sombra Android
+    shadowColor: '#000', // sombra iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  floatingButtonText: {
+    fontSize: 40,
+    color: '#fff',
+    lineHeight: 40,
+  },
+  dateButton: {
+    backgroundColor: '#4A4E69',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    marginBottom: 12,
+  },
+  dateButtonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  filterButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    backgroundColor: '#f2f2f2',
+  },
+
+  filterButtonActive: {
+    backgroundColor: '#4A4E69',
+    borderColor: '#22223B',
+  },
+
+  filterButtonText: {
+    fontSize: 14,
+    color: '#333',
+  },
+
+  filterButtonTextActive: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+
+
 });
