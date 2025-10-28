@@ -14,4 +14,40 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Se o token expirou e ainda não tentamos renovar
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        const refreshToken = await AsyncStorage.getItem('refresh');
+        const response = await axios.post('http://192.168.15.10:8000/api/accounts/token/refresh/', { // ou seu IP local se estiver testando no celular
+          refresh: refreshToken,
+        });
+
+        const newAccessToken = response.data.access;
+        await AsyncStorage.setItem('access', newAccessToken);
+
+        // Atualiza o header da requisição original
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+
+        // Reenvia a requisição original com o novo token
+        return api(originalRequest);
+      } catch (refreshError) {
+        // Se falhar, redireciona para login ou mostra erro
+        console.error('Erro ao renovar token:', refreshError);
+        return Promise.reject(refreshError);
+        
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+
 export default api;
