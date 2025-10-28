@@ -191,18 +191,15 @@ export default function TaskScreen() {
               onChangeText={setNewDescription}
             />
             <View style={styles.modalButtons}>
-              <Button
-                title="Salvar"
-                onPress={() => {
+              <TouchableOpacity style={styles.button2}onPress={() => {
                   handleAddTask();
                   setModalVisible(false);
-                }}
-              />
-              <Button
-                title="Cancelar"
-                color="#888"
-                onPress={() => setModalVisible(false)}
-              />
+                }}>
+                <Text style={styles.text2}>Salvar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.button2}onPress={() => setModalVisible(false)}>
+                <Text style={styles.text2}>Cancelar</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -250,8 +247,8 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 6,
+    borderColor: '#4A4E69',
+    borderRadius: 17,
     padding: 8,
     marginBottom: 8,
   },
@@ -265,7 +262,7 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -342,5 +339,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
+  button2:{
+    height: 45,
+    borderRadius: 15,
+    backgroundColor: '#22223B',
+    justifyContent: 'center',
+    marginBottom: 10,
+    marginTop: 10,
+    paddingHorizontal: 12,
+  },
+
+  text2: {
+    textAlign: 'center',
+    color: '#F2E9E4',
+  },
 
 });
