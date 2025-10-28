@@ -54,13 +54,13 @@ export default function LoginScreen({ navigation }) {
       <View>
         
 
-        <TouchableOpacity onPress={() => navigation.navigate('PasswordReset')} style={styles.button}>
-          <Text style={styles.text}>Esqueci a senha</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('PasswordReset')} style={styles.button2}>
+          <Text style={styles.text2}>Esqueci a senha</Text>
         </TouchableOpacity>
 
         <View style={{ marginTop: 20 }}>
-          <TouchableOpacity onPress={simulateEmailLink} style={styles.button}>
-            <Text style={styles.text}>Simular clique no e‑mail (navegar direto)</Text>
+          <TouchableOpacity onPress={simulateEmailLink} style={styles.button2}>
+            <Text style={styles.text2}>Simular clique no e‑mail (navegar direto)</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -98,9 +98,22 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginTop: 10,
   },
+  button2:{
+    height: 45,
+    width: '100%',
+    borderRadius: 15,
+    backgroundColor: '#22223B',
+    justifyContent: 'center',
+    marginBottom: 10,
+    marginTop: 10,
+  },
   text: {
     textAlign: 'center',
     color: '#22223B',
+  },
+  text2: {
+    textAlign: 'center',
+    color: '#F2E9E4',
   },
   titleText: {
     color: '#22223B',
