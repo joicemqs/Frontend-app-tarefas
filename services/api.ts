@@ -2,7 +2,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const api = axios.create({
-  baseURL: 'http://192.168.15.10:8000/api', // ou seu IP local se estiver testando no celular
+  baseURL: 'http://000.000.00.00:8000/api', // Para teste no celualrar, use o IP da sua máquina na rede local
 });
 
 // Interceptor para adicionar o token automaticamente
