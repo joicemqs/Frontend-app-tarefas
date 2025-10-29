@@ -1,18 +1,18 @@
 # Registro de Desenvolvimento 
 
-Para desenvolver o frontend do projeto estudei de varias formas o react native e encontrei dificuldades, porém pesquisando, vendo varios tutoriais no youtube, e utilizando inteligência artificial consegui executar a tarefa. 
+Para desenvolver o frontend do projeto estudei de várias formas o react native e encontrei dificuldades, porém pesquisando, vendo vários tutoriais no youtube, e utilizando inteligência artificial consegui executar a tarefa. 
 
-Antes de receber a documentação do desafio de programação desenvolvi um simples aplicativo, usando o react native, o que facilitou minah familiarização ocm o framework.
+Antes de receber a documentação do desafio de programação desenvolvi um simples aplicativo, usando o react native, o que facilitou minha familiarização com o framework.
 
-A inteligencia artificail nesse projeto foi de fundamental importância, pois combinada ao conhecimento adquido do estudo ela agilizou muito a produção da aplicação. Utilizei os prompts em etapas, por exemplo ao solicitar ajuda com o projeto nunca pedi para que desenvolvesse grandes partes de código ou códigos de diferentes arquivos, perguntando por exemplo "como utilizazar o axios paar conexão com a API", e não utilizando prompts como "Escreva um código em typescript para um aplicativo de tarefas". A tomada de decisões foi baseada tanto com base em pesquisas, como em inteligência artificial.
+A inteligência artificial nesse projeto foi de fundamental importância, pois combinada ao conhecimento adquirido do estudo agilizou muito a produção da aplicação. Utilizei os prompts em etapas, por exemplo ao solicitar ajuda com o projeto nunca pedi para que desenvolvesse grandes partes de código ou códigos de diferentes arquivos, perguntando por exemplo "como utilizar o axios paar conexão com a API", e não utilizando prompts como "Escreva um código em typescript para um aplicativo de tarefas". A tomada de decisões foi baseada tanto com base em pesquisas, como em inteligência artificial.
 
-Utilizei para me auxiliar a copilot da microsoft, o passo a passo a seguir tem sua particpação em todas as partes, não coloquei nesse documento todos os prompts ou respostas, por conta da quantidade de passos e etapas do desenvolvimento.
+Utilizei para me auxiliar a copilot da microsoft, o passo a passo a seguir tem sua participação em todas as partes, não coloquei nesse documento todos os prompts ou respostas, por conta da quantidade de passos e etapas do desenvolvimento.
 
 ## Início do desenvolvimento
 
-Comecei instalado no Node.js no meu sitema pelo site oficial https://nodejs.org/en/download
+Comecei instalado no Node.js no meu sistema pelo site oficial https://nodejs.org/en/download
 
-Depois instalei o Expo CLI para aocmpanhar o aplicativo pelo meu celular:
+Depois instalei o Expo CLI para aocompanhar o aplicativo pelo meu celular:
 
 ````
 npm install -g expo-cli
@@ -110,7 +110,7 @@ Adicionei a tela de recuperação de senha que solicita o email do usuário para
 
 <img src="imagens/recuperar-senha.jpg" height="500"> <img src="imagens/verifique-email.jpg" height="500"> 
 
-Para testes, como não era possível enviar um link personalizado por email para abrir diretamente o aplicativo, adaptei um botão de navegação direta para a página de confirmação. Para testar, é necessário pegar os valores do uid e token e adicionar manualmente no arquivo de LoginScreen.py, e escrever a nova senha na tela de redefinição, para redefinir a senha.
+Para testes, como não era possível enviar um link personalizado por email para abrir diretamente o aplicativo, adaptei um botão de navegação direta para a página de confirmação. Para testar, é necessário pegar os valores do uid e token , que aparecerão em um link no terminal do servidor Django, e adicionar manualmente no arquivo de LoginScreen.py, e escrever a nova senha na tela de redefinição, para redefinir a senha.
 
 ![Onde colocar uid e token](imagens/uid-token.png)
 
