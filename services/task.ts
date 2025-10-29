@@ -1,19 +1,19 @@
 import api from './api';
 
 export const fetchTasks = async () => {
-  const response = await api.get('/tasks/tasks/');
+  const response = await api.get('/tasks/');
   return response.data;
 };
 
 export const toggleTaskStatus = async (taskId: number, is_completed: boolean) => {
-  const response = await api.patch(`/tasks/tasks/${taskId}/`, {
+  const response = await api.patch(`/tasks/${taskId}/`, {
     is_completed: !is_completed,
   });
   return response.data;
 };
 
 export const createTask = async (title: string, description: string) => {
-  const response = await api.post('/tasks/tasks/', {
+  const response = await api.post('/tasks/', {
     title,
     description,
     is_completed: false,
@@ -22,7 +22,7 @@ export const createTask = async (title: string, description: string) => {
 };
 
 export const updateTask = async (taskId: number, title: string, description: string) => {
-  const response = await api.patch(`/tasks/tasks/${taskId}/`, {
+  const response = await api.patch(`/tasks/${taskId}/`, {
     title,
     description,
   });
@@ -30,6 +30,6 @@ export const updateTask = async (taskId: number, title: string, description: str
 };
 
 export const deleteTask = async (taskId: number) => {
-  const response = await api.delete(`/tasks/tasks/${taskId}/`);
+  const response = await api.delete(`/tasks/${taskId}/`);
   return response.data;
 };
