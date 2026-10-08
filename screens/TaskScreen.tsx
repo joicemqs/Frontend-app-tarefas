@@ -1,6 +1,6 @@
 // screens/TaskScreen.tsx
 import React, { useEffect, useState } from 'react';
-import { Modal, View, Text, FlatList, ActivityIndicator, StyleSheet, TextInput, Button, Alert, TouchableOpacity } from 'react-native';
+import { Modal, View, Text, FlatList, ActivityIndicator, StyleSheet, TextInput, Button, Alert, TouchableOpacity, Platform } from 'react-native';
 import { fetchTasks, toggleTaskStatus, createTask, updateTask, deleteTask } from '../services/task';
 import TaskItem from '../components/TaskItem';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -67,24 +67,30 @@ export default function TaskScreen() {
   };
 
   const handleDelete = (taskId: number) => {
+    const confirmDelete = async () => {
+      try {
+        await deleteTask(taskId);
+        setTasks((prev) => prev.filter((t) => t.id !== taskId));
+      } catch (err) {
+        console.error('Erro ao excluir tarefa:', err);
+        setError('Erro ao excluir tarefa');
+      }
+    };
+
+    // Alert.alert com botões não funciona no navegador, então na web usamos o confirm nativo
+    if (Platform.OS === 'web') {
+      if (window.confirm('Tem certeza que deseja excluir esta tarefa?')) {
+        confirmDelete();
+      }
+      return;
+    }
+
     Alert.alert(
       'Excluir tarefa',
       'Tem certeza que deseja excluir esta tarefa?',
       [
         { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Excluir',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteTask(taskId);
-              setTasks((prev) => prev.filter((t) => t.id !== taskId));
-            } catch (err) {
-              console.error('Erro ao excluir tarefa:', err);
-              setError('Erro ao excluir tarefa');
-            }
-          },
-        },
+        { text: 'Excluir', style: 'destructive', onPress: confirmDelete },
       ],
       { cancelable: true }
     );

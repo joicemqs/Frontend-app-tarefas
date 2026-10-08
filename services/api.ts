@@ -1,8 +1,12 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// Defina EXPO_PUBLIC_API_URL no arquivo .env.local (veja o .env.example).
+// Para testar no celular, use o IP da sua máquina na rede local.
+export const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8000/api';
+
 const api = axios.create({
-  baseURL: 'http://000.000.00.00:8000/api', // Para teste no celualrar, use o IP da sua máquina na rede local
+  baseURL: API_URL,
 });
 
 // Interceptor para adicionar o token automaticamente
@@ -25,7 +29,7 @@ api.interceptors.response.use(
 
       try {
         const refreshToken = await AsyncStorage.getItem('refresh');
-        const response = await axios.post('http://192.168.15.10:8000/api/accounts/token/refresh/', { // ou seu IP local se estiver testando no celular
+        const response = await axios.post(`${API_URL}/accounts/token/refresh/`, {
           refresh: refreshToken,
         });
 
