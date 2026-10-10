@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Alert, StyleSheet, TouchableOpacity,} from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { loginUser } from '../services/auth';
+import { showAlert } from '../utils/alert';
+import { getApiErrorMessage } from '../utils/apiError';
 
 export default function LoginScreen({ navigation }) {
   const { login } = useAuth();
@@ -9,20 +11,17 @@ export default function LoginScreen({ navigation }) {
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
+    if (!email.trim() || !password) {
+      showAlert('Erro ao entrar', 'Preencha o e-mail e a senha.');
+      return;
+    }
+
     try {
-      await loginUser(email, password);
+      await loginUser(email.trim(), password);
       login(); // ativa navegação para tela de tarefas
     } catch (error) {
-      Alert.alert('Erro ao entrar', 'Verifique suas credenciais.');
+      showAlert('Erro ao entrar', getApiErrorMessage(error, 'Verifique suas credenciais.'));
     }
-  };
-
-  // Botão de simulação: navega direto para PasswordResetConfirm com uid e token
-  const simulateEmailLink = () => {
-    // Substitua pelos valores reais que aparecem no terminal
-    const uid = 'Mw';
-    const token = 'cy96u3-959143f2c3ec9cbab5f42f0d23080efc';
-    navigation.navigate('PasswordResetConfirm', { uid, token });
   };
 
   return (
@@ -33,6 +32,7 @@ export default function LoginScreen({ navigation }) {
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
+          keyboardType="email-address"
           style={styles.TextInput}
         />
         <Text style={styles.titleText}>Senha</Text>
@@ -58,11 +58,9 @@ export default function LoginScreen({ navigation }) {
           <Text style={styles.text2}>Esqueci a senha</Text>
         </TouchableOpacity>
 
-        <View style={{ marginTop: 20 }}>
-          <TouchableOpacity onPress={simulateEmailLink} style={styles.button2}>
-            <Text style={styles.text2}>Simular clique no e‑mail (navegar direto)</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity onPress={() => navigation.navigate('PasswordResetConfirm')} style={styles.button2}>
+          <Text style={styles.text2}>Já tenho o link de redefinição</Text>
+        </TouchableOpacity>
       </View>
 
     </View>

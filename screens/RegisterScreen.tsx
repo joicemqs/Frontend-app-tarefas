@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { registerUser } from '../services/auth';
+import { showAlert } from '../utils/alert';
+import { getApiErrorMessage } from '../utils/apiError';
 
 
 export default function RegisterScreen({ navigation }) {
@@ -11,11 +13,12 @@ export default function RegisterScreen({ navigation }) {
 
   const handleRegister = async () => {
     try {
-      await registerUser(username, email, password);
-      Alert.alert('Sucesso', 'Cadastro realizado com sucesso!');
+      await registerUser(username.trim(), email.trim(), password);
+      showAlert('Sucesso', 'Cadastro realizado com sucesso! Faça login para continuar.');
       navigation.navigate('Login');
     } catch (error) {
-      Alert.alert('Erro ao registrar', 'Verifique os dados e tente novamente.');
+      // mostra o motivo vindo da API, ex.: "Esta senha é muito curta."
+      showAlert('Erro ao registrar', getApiErrorMessage(error, 'Verifique os dados e tente novamente.'));
     }
   };
 
@@ -25,7 +28,7 @@ export default function RegisterScreen({ navigation }) {
       <TextInput style={styles.TextInput} value={username} onChangeText={setUsername} />
 
       <Text style={styles.titleText}>Email</Text>
-      <TextInput style={styles.TextInput} value={email} onChangeText={setEmail} autoCapitalize="none" />
+      <TextInput style={styles.TextInput} value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />
 
       <Text style={styles.titleText}>Senha</Text>
       <TextInput style={styles.TextInput} value={password} onChangeText={setPassword} secureTextEntry />

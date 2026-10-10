@@ -9,6 +9,17 @@ const api = axios.create({
   baseURL: API_URL,
 });
 
+// Chamado quando a sessão expira de vez (refresh token inválido); o AuthContext registra o logout aqui
+let onSessionExpired: (() => void) | null = null;
+
+export function setOnSessionExpired(handler: (() => void) | null) {
+  onSessionExpired = handler;
+}
+
+export async function clearTokens() {
+  await AsyncStorage.multiRemove(['access', 'refresh']);
+}
+
 // Interceptor para adicionar o token automaticamente
 api.interceptors.request.use(async (config) => {
   const token = await AsyncStorage.getItem('access');
@@ -22,13 +33,13 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const refreshToken = await AsyncStorage.getItem('refresh');
 
-    // Se o token expirou e ainda não tentamos renovar
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Se o token expirou, ainda não tentamos renovar e existe um refresh token (no login com senha errada não existe)
+    if (error.response?.status === 401 && !originalRequest._retry && refreshToken) {
       originalRequest._retry = true;
 
       try {
-        const refreshToken = await AsyncStorage.getItem('refresh');
         const response = await axios.post(`${API_URL}/accounts/token/refresh/`, {
           refresh: refreshToken,
         });
@@ -42,10 +53,10 @@ api.interceptors.response.use(
         // Reenvia a requisição original com o novo token
         return api(originalRequest);
       } catch (refreshError) {
-        // Se falhar, redireciona para login ou mostra erro
-        console.error('Erro ao renovar token:', refreshError);
+        // Refresh também expirou: limpa a sessão e volta para o login
+        await clearTokens();
+        onSessionExpired?.();
         return Promise.reject(refreshError);
-        
       }
     }
 

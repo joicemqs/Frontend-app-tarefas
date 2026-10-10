@@ -1,28 +1,53 @@
 // screens/TaskScreen.tsx
-import React, { useEffect, useState } from 'react';
-import { Modal, View, Text, FlatList, ActivityIndicator, StyleSheet, TextInput, Button, Alert, TouchableOpacity, Platform } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Modal, View, Text, FlatList, ActivityIndicator, StyleSheet, TextInput, TouchableOpacity, RefreshControl } from 'react-native';
 import { fetchTasks, toggleTaskStatus, createTask, updateTask, deleteTask } from '../services/task';
 import TaskItem from '../components/TaskItem';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { Task } from '../types';
+import { showConfirm } from '../utils/alert';
 
-
-interface Task {
-  id: number;
-  title: string;
-  is_completed: boolean;
-  created_at: string;
-}
 
 export default function TaskScreen() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+  const [loadError, setLoadError] = useState(''); // falha ao carregar a lista: mostra tela com "Tentar novamente"
+  const [error, setError] = useState(''); // falha numa ação: mostra aviso sem esconder a lista
   const [newTitle, setNewTitle] = useState('');
   const [newDescription, setNewDescription] = useState('');
+  const [titleError, setTitleError] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'completed' | 'pending'>('all');
   const [filterDate, setFilterDate] = useState<Date | null>(null);
   const [showPicker, setShowPicker] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+
+  const loadTasks = useCallback(async () => {
+    try {
+      const data = await fetchTasks();
+      setTasks(data);
+      setLoadError('');
+    } catch (err) {
+      console.error('Erro ao carregar tarefas:', err);
+      setLoadError('Não foi possível carregar suas tarefas.');
+    }
+  }, []);
+
+  useEffect(() => {
+    loadTasks().finally(() => setLoading(false));
+  }, [loadTasks]);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadTasks();
+    setRefreshing(false);
+  };
+
+  const handleRetry = async () => {
+    setLoading(true);
+    await loadTasks();
+    setLoading(false);
+  };
 
   const handleToggle = async (taskId: number, is_completed: boolean) => {
     try {
@@ -38,17 +63,27 @@ export default function TaskScreen() {
     }
   };
 
+  const closeModal = () => {
+    setModalVisible(false);
+    setNewTitle('');
+    setNewDescription('');
+    setTitleError('');
+  };
+
   const handleAddTask = async () => {
-    if (!newTitle.trim()) return;
+    if (!newTitle.trim()) {
+      setTitleError('Informe um título para a tarefa.');
+      return;
+    }
 
     try {
-      const newTask = await createTask(newTitle, newDescription);
-      setTasks((prev) => [...prev, newTask]);
-      setNewTitle('');
-      setNewDescription('');
+      const newTask = await createTask(newTitle.trim(), newDescription);
+      // a API ordena da mais recente para a mais antiga, então a nova vai para o topo
+      setTasks((prev) => [newTask, ...prev]);
+      closeModal();
     } catch (err) {
       console.error('Erro ao adicionar tarefa:', err);
-      setError('Erro ao adicionar tarefa');
+      setTitleError('Não foi possível salvar a tarefa. Tente novamente.');
     }
   };
 
@@ -67,7 +102,7 @@ export default function TaskScreen() {
   };
 
   const handleDelete = (taskId: number) => {
-    const confirmDelete = async () => {
+    showConfirm('Excluir tarefa', 'Tem certeza que deseja excluir esta tarefa?', 'Excluir', async () => {
       try {
         await deleteTask(taskId);
         setTasks((prev) => prev.filter((t) => t.id !== taskId));
@@ -75,25 +110,7 @@ export default function TaskScreen() {
         console.error('Erro ao excluir tarefa:', err);
         setError('Erro ao excluir tarefa');
       }
-    };
-
-    // Alert.alert com botões não funciona no navegador, então na web usamos o confirm nativo
-    if (Platform.OS === 'web') {
-      if (window.confirm('Tem certeza que deseja excluir esta tarefa?')) {
-        confirmDelete();
-      }
-      return;
-    }
-
-    Alert.alert(
-      'Excluir tarefa',
-      'Tem certeza que deseja excluir esta tarefa?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Excluir', style: 'destructive', onPress: confirmDelete },
-      ],
-      { cancelable: true }
-    );
+    });
   };
 
   function isSameDay(date1: Date, date2: Date): boolean {
@@ -117,26 +134,27 @@ export default function TaskScreen() {
     return matchStatus && matchDate;
   });
 
-  useEffect(() => {
-    const loadTasks = async () => {
-      try {
-        const data = await fetchTasks();
-        setTasks(data);
-      } catch (err) {
-        setError('Erro ao carregar tarefas');
-      } finally {
-        setLoading(false);
-      }
-    };
+  if (loading) return <ActivityIndicator style={styles.loader} size="large" color="#4A4E69" />;
 
-    loadTasks();
-  }, []);
-
-  if (loading) return <ActivityIndicator style={styles.loader} size="large" color="#000" />;
-  if (error) return <Text style={styles.error}>{error}</Text>;
+  if (loadError) {
+    return (
+      <View style={[styles.container, styles.centered]}>
+        <Text style={styles.error}>{loadError}</Text>
+        <TouchableOpacity style={styles.button2} onPress={handleRetry}>
+          <Text style={styles.text2}>Tentar novamente</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
+
+      {error ? (
+        <TouchableOpacity style={styles.errorBanner} onPress={() => setError('')}>
+          <Text style={styles.errorBannerText}>{error} (toque para fechar)</Text>
+        </TouchableOpacity>
+      ) : null}
 
       <View style={styles.dateFilter}>
         <TouchableOpacity
@@ -198,7 +216,7 @@ export default function TaskScreen() {
         animationType="slide"
         transparent={true}
         visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
+        onRequestClose={closeModal}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -207,8 +225,12 @@ export default function TaskScreen() {
               style={styles.input}
               placeholder="Título"
               value={newTitle}
-              onChangeText={setNewTitle}
+              onChangeText={(text) => {
+                setNewTitle(text);
+                if (titleError) setTitleError('');
+              }}
             />
+            {titleError ? <Text style={styles.fieldError}>{titleError}</Text> : null}
             <TextInput
               style={styles.input}
               placeholder="Descrição"
@@ -216,13 +238,10 @@ export default function TaskScreen() {
               onChangeText={setNewDescription}
             />
             <View style={styles.modalButtons}>
-              <TouchableOpacity style={styles.button2} onPress={() => {
-                handleAddTask();
-                setModalVisible(false);
-              }}>
+              <TouchableOpacity style={styles.button2} onPress={handleAddTask}>
                 <Text style={styles.text2}>Salvar</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.button2} onPress={() => setModalVisible(false)}>
+              <TouchableOpacity style={styles.button2} onPress={closeModal}>
                 <Text style={styles.text2}>Cancelar</Text>
               </TouchableOpacity>
             </View>
@@ -237,6 +256,15 @@ export default function TaskScreen() {
         renderItem={({ item }) => (
           <TaskItem task={item} onToggle={handleToggle} onEdit={handleEdit} onDelete={handleDelete} />
         )}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
+        contentContainerStyle={filteredTasks.length === 0 ? styles.emptyContainer : undefined}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>
+            {tasks.length === 0
+              ? 'Você ainda não tem tarefas.\nToque no + para criar a primeira!'
+              : 'Nenhuma tarefa encontrada com esses filtros.'}
+          </Text>
+        }
       />
 
       <TouchableOpacity
@@ -258,8 +286,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#F2E9E4',
 
   },
-  loader: { flex: 1, justifyContent: 'center' },
-  error: { color: 'red', textAlign: 'center', marginTop: 20 },
+  loader: { flex: 1, justifyContent: 'center', backgroundColor: '#F2E9E4' },
+  centered: { justifyContent: 'center' },
+  error: { color: '#9B2226', textAlign: 'center', marginBottom: 12, fontSize: 16 },
+  errorBanner: {
+    backgroundColor: '#F8D7DA',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 10,
+  },
+  errorBannerText: { color: '#9B2226', textAlign: 'center' },
+  fieldError: { color: '#9B2226', marginTop: -4, marginBottom: 8, marginLeft: 8 },
+  emptyContainer: { flexGrow: 1, justifyContent: 'center' },
+  emptyText: { textAlign: 'center', color: '#4A4E69', fontSize: 16, lineHeight: 24 },
   taskItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',

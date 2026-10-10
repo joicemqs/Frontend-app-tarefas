@@ -1,13 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Button, StyleSheet } from 'react-native';
-
-interface Task {
-  id: number;
-  title: string;
-  description?: string;
-  is_completed?: boolean;
-  created_at: string;
-}
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { Task } from '../types';
 
 interface Props {
   task: Task;
@@ -20,8 +13,6 @@ export default function TaskItem({ task, onToggle, onEdit, onDelete }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(task.title);
   const [editedDescription, setEditedDescription] = useState(task.description ?? '');
-
-  console.log('Renderizando TaskItem:', task);
 
   return (
     <View style={styles.container}>
@@ -41,7 +32,8 @@ export default function TaskItem({ task, onToggle, onEdit, onDelete }: Props) {
           />
           <View style={styles.row}>
             <TouchableOpacity style={styles.button2} onPress={() => {
-                onEdit(task.id, editedTitle, editedDescription);
+                if (!editedTitle.trim()) return; // título é obrigatório
+                onEdit(task.id, editedTitle.trim(), editedDescription);
                 setIsEditing(false);
               }}>
               <Text style={styles.text2}>Salvar</Text>
@@ -62,7 +54,7 @@ export default function TaskItem({ task, onToggle, onEdit, onDelete }: Props) {
 
           <View>
             <TouchableOpacity
-              onPress={() => onToggle(task.id, task.is_completed ?? false)}
+              onPress={() => onToggle(task.id, task.is_completed)}
               style={styles.toggleButton}
             >
               <Text style={styles.icon}>{task.is_completed ? '✔' : '    '}</Text>
@@ -149,7 +141,7 @@ const styles = StyleSheet.create({
   },
   deleteText: {
     fontSize: 18,
-    color: '4A4E69',
+    color: '#4A4E69',
   },
   button2:{
     height: 45,

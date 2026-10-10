@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { requestPasswordReset } from '../services/auth';
+import { showAlert } from '../utils/alert';
+import { getApiErrorMessage } from '../utils/apiError';
 
 export default function PasswordResetScreen({ navigation }) {
   const [email, setEmail] = useState('');
 
   const handleReset = async () => {
     try {
-      await requestPasswordReset(email);
-      Alert.alert('Verifique seu e-mail', 'Enviamos instruções para redefinir sua senha.');
-      navigation.goBack();
+      await requestPasswordReset(email.trim());
+      showAlert('Verifique seu e-mail', 'Se existir uma conta com este e-mail, enviaremos o link para redefinir sua senha.');
+      navigation.navigate('PasswordResetConfirm');
     } catch (error) {
-      Alert.alert('Erro', 'Não foi possível enviar o e-mail. Verifique o endereço informado.');
+      showAlert('Erro', getApiErrorMessage(error, 'Não foi possível enviar o e-mail. Verifique o endereço informado.'));
     }
   };
 
